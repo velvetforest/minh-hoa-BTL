@@ -666,7 +666,7 @@ tokens += segment(text[pos:])</pre>
         </table>
       </div>
       <div class="warn"><b>Not done yet:</b> Recall@5/@20 and p95 with the real model on the 30 golden questions. Compare with BM25 (0.805 / 0.447) before Hybrid.</div>
-      <div class="note"><b>Run them:</b> <code>pip install -e ".[dense,test]"</code> then <code>python -m unittest tests.test_dense_retrieval</code></div>
+      <div class="note"><b>Run them:</b> tests only need <code>pip install "qdrant-client&gt;=1.12,&lt;2"</code> (the <code>dense</code> extra also pulls torch), then <code>python -m unittest tests.test_dense_retrieval</code></div>
     </div>
   </div>
   <div class="foot"><span>Files: team1_data/retrieval/dense.py · tests/test_dense_retrieval.py</span><span>8 / 8</span></div>
