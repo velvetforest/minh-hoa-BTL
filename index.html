@@ -448,7 +448,7 @@ tokens += segment(text[pos:])</pre>
 <div class="frame"><section class="slide dense">
   <div class="eyebrow">Page 6 · Semantic branch · VLRA-26, VLRA-27, VLRA-29</div>
   <h1>Dense: find chunks with the same meaning, even with different words</h1>
-  <div class="sub">This page describes the design in <code>dense-retrieval-proposal.md</code>. Dense has <b>not been run yet</b>: no <code>sentence-transformers</code>, no model download, no Qdrant.</div>
+  <div class="sub">This page explains the idea behind <code>dense-retrieval-proposal.md</code>. The module is now built and tested (pages 7 and 8, PR #26), but it has <b>not yet run with the real model</b>, so no Recall numbers yet.</div>
 
   <div class="grid g3">
     <div class="col">
@@ -488,7 +488,7 @@ tokens += segment(text[pos:])</pre>
           <li><b>Model:</b> <code>AITeamVN/Vietnamese_Embedding</code> (BGE-M3 base). Switch to <code>vnlegal-lal</code> or <code>vietlegal-e5</code> if Recall@20 is ≥ 3 points higher.</li>
         </ul>
       </div>
-      <div class="warn"><b>To prepare:</b> <code>sentence-transformers</code>, <code>torch</code> and the model ≈ 3–4 GB, plus Qdrant via Docker.</div>
+      <div class="warn"><b>Still to prepare for the benchmark:</b> <code>sentence-transformers</code>, <code>torch</code> and the model ≈ 3–4 GB, plus Qdrant via Docker. Tests do not need any of these.</div>
     </div>
 
     <div class="col">
@@ -501,7 +501,7 @@ tokens += segment(text[pos:])</pre>
             <tr><td><b>Strong at</b></td><td>"Art. 69 of Law 59/2020?"</td><td>"What is needed to share profit?"</td></tr>
             <tr><td><b>Weak at</b></td><td>Synonyms, paraphrase</td><td>Exact numbers, article IDs</td></tr>
             <tr><td><b>Needs</b></td><td>Vietnamese tokenizer</td><td>Model + Qdrant</td></tr>
-            <tr><td><b>Status</b></td><td>Prototype run</td><td>Not run</td></tr>
+            <tr><td><b>Status</b></td><td>Module, Recall@20 0.805</td><td>Module + tests, not benchmarked</td></tr>
           </tbody>
         </table>
       </div>
