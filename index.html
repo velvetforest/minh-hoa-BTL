@@ -488,7 +488,7 @@ tokens += segment(text[pos:])</pre>
           <li><b>Model:</b> <code>AITeamVN/Vietnamese_Embedding</code> (BGE-M3 base). Switch to <code>vnlegal-lal</code> or <code>vietlegal-e5</code> if Recall@20 is ≥ 3 points higher.</li>
         </ul>
       </div>
-      <div class="warn"><b>Still to prepare for the benchmark:</b> <code>sentence-transformers</code>, <code>torch</code> and the model ≈ 3–4 GB, plus Qdrant via Docker. Tests do not need any of these.</div>
+      <div class="warn"><b>For the benchmark:</b> <code>torch</code> + model ≈ 3–4 GB, Qdrant via Docker. Tests need none.</div>
     </div>
 
     <div class="col">
@@ -501,7 +501,7 @@ tokens += segment(text[pos:])</pre>
             <tr><td><b>Strong at</b></td><td>"Art. 69 of Law 59/2020?"</td><td>"What is needed to share profit?"</td></tr>
             <tr><td><b>Weak at</b></td><td>Synonyms, paraphrase</td><td>Exact numbers, article IDs</td></tr>
             <tr><td><b>Needs</b></td><td>Vietnamese tokenizer</td><td>Model + Qdrant</td></tr>
-            <tr><td><b>Status</b></td><td>Module, Recall@20 0.805</td><td>Module + tests, not benchmarked</td></tr>
+            <tr><td><b>Status</b></td><td>Done, R@20 0.805</td><td>Done, no benchmark</td></tr>
           </tbody>
         </table>
       </div>
