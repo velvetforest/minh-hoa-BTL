@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BM25 and Dense Retrieval</title>
+<style>
+  :root{
+    --bg:#ffffff; --ink:#1c1c1a; --mute:#6b6a64; --line:#e4e2da;
+    --gold:#a67c1f; --gold-soft:#f6efdc; --red:#b3372b; --red-soft:#fbeae7; --ok:#3f6b4f; --ok-soft:#e8f1eb;
+    --blue:#2f5d7c; --blue-soft:#e6eef4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:#efeee9}
+  body{font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  .stage{display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px 0}
+  .frame{width:1280px;height:720px;transform-origin:top left}
+  .slide{width:1280px;height:720px;background:var(--bg);padding:34px 48px 24px;position:relative;display:flex;flex-direction:column;box-shadow:0 2px 18px rgba(0,0,0,.08)}
+  .slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--gold)}
+  .slide.dense::before{background:var(--blue)}
+  .eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .dense .eyebrow{color:var(--blue)}
+  h1{font-size:31px;line-height:1.15;font-weight:800;margin-top:6px;letter-spacing:-.01em}
+  .sub{font-size:14.5px;color:var(--mute);margin-top:6px;max-width:1150px}
+  .grid{display:grid;gap:18px;margin-top:16px;flex:1;min-height:0}
+  .g3{grid-template-columns:1fr 1fr 1fr}
+  .g2{grid-template-columns:1.15fr 1fr}
+  .col{display:flex;flex-direction:column;gap:12px;min-height:0}
+  .box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fcfbf8}
+  .box h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:8px}
+  .box p,.box li{font-size:13.5px;line-height:1.45}
+  .box ul{padding-left:18px}
+  .box li{margin:2px 0}
+  .big{font-size:15px;line-height:1.5}
+  code{font-family:Consolas,"Cascadia Mono",monospace;font-size:12px;background:var(--gold-soft);padding:1px 5px;border-radius:3px}
+  .dense code{background:var(--blue-soft)}
+  .formula{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 10px;text-align:center;margin:6px 0 8px}
+  .formula math{font-size:19px}
+  .formula.sm math{font-size:16px}
+  .vars{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:13px;line-height:1.4}
+  .vars dt{font-weight:700;text-align:right;font-family:"Cambria Math","Times New Roman",serif;font-style:italic}
+  .tok{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 8px}
+  .tok span{font-family:Consolas,monospace;font-size:12px;padding:2px 6px;border-radius:4px;background:#fff;border:1px solid var(--line)}
+  .tok.good span{background:var(--ok-soft);border-color:#c5dccb}
+  .tok.bad span{background:var(--red-soft);border-color:#efc9c3}
+  .lbl{font-size:11px;font-weight:700;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+  table.t{border-collapse:collapse;width:100%;font-size:13px;line-height:1.4}
+  table.t th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:0 8px 6px;border-bottom:2px solid var(--ink)}
+  table.t td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .barc{display:flex;align-items:center;gap:6px}
+  .bar{height:8px;border-radius:4px;background:var(--gold)}
+  .res{font-size:12.5px;display:grid;grid-template-columns:18px 1fr 48px;gap:4px 8px}
+  .hit{color:var(--ok);font-weight:800}
+  .miss{color:var(--mute)}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat{border-radius:8px;background:var(--gold-soft);padding:8px 10px}
+  .stat b{display:block;font-size:22px;line-height:1.1}
+  .stat span{font-size:11.5px;color:var(--mute)}
+  .warn{border-left:4px solid var(--red);background:var(--red-soft);padding:8px 10px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.45}
+  .note{border-left:4px solid var(--gold);background:var(--gold-soft);padding:8px 10px;border-radius:0 8px 8px 0;font-size:13px;line-height:1.45}
+  .dense .note{border-color:var(--blue);background:var(--blue-soft)}
+  .foot{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+  svg{display:block;width:100%;height:auto}
+  pre{font-family:Consolas,monospace;font-size:11.5px;line-height:1.45;white-space:pre-wrap}
+  @page{size:1280px 720px;margin:0}
+  @media print{html,body{background:#fff}.stage{padding:0;gap:0}.frame{transform:none!important;height:720px;page-break-after:always}.slide{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+
+<!-- ================= PAGE 1: BM25 THEORY ================= -->
+<div class="frame"><section class="slide">
+  <div class="eyebrow">Page 1 · Keyword branch · VLRA-25</div>
+  <h1>BM25: score a chunk by the query words it contains</h1>
+  <div class="sub">BM25 (Best Match 25) is a ranking function from classic information retrieval. It needs no training: it only counts words. We use the Lucene variant through the <code>bm25s</code> library.</div>
+
+  <div class="grid g2">
+    <div class="col">
+      <div class="box">
+        <h3>Formula</h3>
+        <div class="formula">
+          <math display="block">
+            <mrow>
+              <mtext>score</mtext><mo>(</mo><mi>q</mi><mo>,</mo><mi>d</mi><mo>)</mo><mo>=</mo>
+              <munder><mo>∑</mo><mrow><mi>t</mi><mo>∈</mo><mi>q</mi></mrow></munder>
+              <mtext>IDF</mtext><mo>(</mo><mi>t</mi><mo>)</mo><mo>·</mo>
+              <mfrac>
+                <mrow><mi>f</mi><mo>(</mo><mi>t</mi><mo>,</mo><mi>d</mi><mo>)</mo><mo>·</mo><mo>(</mo><msub><mi>k</mi><mn>1</mn></msub><mo>+</mo><mn>1</mn><mo>)</mo></mrow>
+                <mrow><mi>f</mi><mo>(</mo><mi>t</mi><mo>,</mo><mi>d</mi><mo>)</mo><mo>+</mo><msub><mi>k</mi><mn>1</mn></msub><mo>·</mo><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>b</mi><mo>+</mo><mi>b</mi><mo>·</mo><mfrac><mrow><mo>|</mo><mi>d</mi><mo>|</mo></mrow><mtext>avgdl</mtext></mfrac><mo>)</mo></mrow></mrow>
+              </mfrac>
+            </mrow>
+          </math>
+        </div>
+        <div class="formula sm">
+          <math display="block">
+            <mrow><mtext>IDF</mtext><mo>(</mo><mi>t</mi><mo>)</mo><mo>=</mo><mi>ln</mi><mrow><mo>(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mi>N</mi><mo>−</mo><mi>n</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>+</mo><mn>0.5</mn></mrow><mrow><mi>n</mi><mo>(</mo><mi>t</mi><mo>)</mo><mo>+</mo><mn>0.5</mn></mrow></mfrac><mo>)</mo></mrow></mrow>
+          </math>
+        </div>
+        <dl class="vars">
+          <dt>q, d</dt><dd>the query and one chunk (both as word lists)</dd>
+          <dt>f(t, d)</dt><dd>how many times word <i>t</i> appears in chunk <i>d</i></dd>
+          <dt>|d|, avgdl</dt><dd>length of this chunk, average chunk length (74 words in our corpus)</dd>
+          <dt>N, n(t)</dt><dd>number of chunks (2,576), number of chunks containing <i>t</i></dd>
+          <dt>k₁ = 1.2</dt><dd>saturation: the 10th repeat of a word adds far less than the 1st</dd>
+          <dt>b = 0.75</dt><dd>length penalty: long chunks do not win just by having more words</dd>
+        </dl>
+      </div>
+      <div class="box">
+        <h3>Why Vietnamese needs word segmentation</h3>
+        <p>Vietnamese separates syllables, not words. Splitting by spaces makes "doanh" match "doanh thu" (revenue).</p>
+        <div class="lbl" style="margin-top:6px">Split by spaces</div>
+        <div class="tok bad"><span>doanh</span><span>nghiệp</span><span>tạm</span><span>ngừng</span><span>kinh</span><span>doanh</span><span>thông</span><span>báo</span></div>
+        <div class="lbl">underthesea word_tokenize</div>
+        <div class="tok good"><span>doanh_nghiệp</span><span>tạm</span><span>ngừng</span><span>kinh_doanh</span><span>thông_báo</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>IDF in our corpus: rare words weigh more</h3>
+        <table class="t">
+          <thead><tr><th>Word</th><th>n(t)</th><th>IDF</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><code>doanh_nghiệp</code></td><td class="n">2,569</td><td class="n">0.00</td><td><div class="bar" style="width:1px"></div></td></tr>
+            <tr><td><code>kinh_doanh</code></td><td class="n">886</td><td class="n">1.07</td><td><div class="bar" style="width:34px"></div></td></tr>
+            <tr><td><code>ngày</code></td><td class="n">495</td><td class="n">1.65</td><td><div class="bar" style="width:52px"></div></td></tr>
+            <tr><td><code>thông_báo</code></td><td class="n">377</td><td class="n">1.92</td><td><div class="bar" style="width:60px"></div></td></tr>
+            <tr><td><code>tạm</code></td><td class="n">138</td><td class="n">2.92</td><td><div class="bar" style="width:92px"></div></td></tr>
+            <tr><td><code>ngừng</code></td><td class="n">112</td><td class="n">3.13</td><td><div class="bar" style="width:98px"></div></td></tr>
+            <tr><td><code>xử_phạt</code></td><td class="n">106</td><td class="n">3.19</td><td><div class="bar" style="width:100px"></div></td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12.5px;color:#6b6a64;margin-top:8px">Measured on the real 2,576 chunks. "doanh_nghiệp" appears in almost every chunk (every header says "Luật Doanh nghiệp"), so it scores 0. "tạm ngừng" (suspend) is what actually finds the right article.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Design source: docs/team1_data/bm25-proposal.md</span><span>1 / 6</span></div>
+</section></div>
+
+<!-- ================= PAGE 2: BM25 IN PRACTICE ================= -->
+<div class="frame"><section class="slide">
+  <div class="eyebrow">Page 2 · BM25 in practice · VLRA-25, VLRA-28</div>
+  <h1>Prototype run on real data: Recall@20 = 0.70</h1>
+  <div class="sub">First prototype run, before the module (page 3 has the module results). 2,576 chunks from <code>chunks.jsonl</code>, 30 golden questions from <code>golden_phase1_30cai.json</code>.</div>
+
+  <div class="grid g3">
+    <div class="col">
+      <div class="box">
+        <h3>How it is used</h3>
+        <svg viewBox="0 0 360 170" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+          <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6b6a64"/></marker></defs>
+          <text x="0" y="12" font-size="10.5" font-weight="700" fill="#a67c1f">ONCE (OFFLINE)</text>
+          <rect x="0" y="20" width="100" height="40" rx="6" fill="#fff" stroke="#1c1c1a"/>
+          <text x="50" y="38" font-size="11" text-anchor="middle" font-weight="700">chunks.jsonl</text>
+          <text x="50" y="52" font-size="9.5" text-anchor="middle" fill="#6b6a64">header + content</text>
+          <rect x="128" y="20" width="96" height="40" rx="6" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="176" y="44" font-size="11" text-anchor="middle" font-weight="700">tokenize</text>
+          <rect x="252" y="20" width="108" height="40" rx="6" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="306" y="38" font-size="11" text-anchor="middle" font-weight="700">BM25 index</text>
+          <text x="306" y="52" font-size="9.5" text-anchor="middle" fill="#6b6a64">saved to disk</text>
+          <path d="M100 40 L126 40" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#a)"/>
+          <path d="M224 40 L250 40" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#a)"/>
+          <text x="0" y="96" font-size="10.5" font-weight="700" fill="#a67c1f">EVERY QUESTION (ONLINE)</text>
+          <rect x="0" y="104" width="100" height="40" rx="6" fill="#fff" stroke="#1c1c1a"/>
+          <text x="50" y="128" font-size="11" text-anchor="middle" font-weight="700">question</text>
+          <rect x="128" y="104" width="96" height="40" rx="6" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="176" y="128" font-size="11" text-anchor="middle" font-weight="700">tokenize</text>
+          <rect x="252" y="104" width="108" height="40" rx="6" fill="#fff" stroke="#1c1c1a"/>
+          <text x="306" y="122" font-size="11" text-anchor="middle" font-weight="700">top-k chunks</text>
+          <text x="306" y="136" font-size="9.5" text-anchor="middle" fill="#6b6a64">drop score = 0</text>
+          <path d="M100 124 L126 124" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#a)"/>
+          <path d="M224 124 L250 124" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#a)"/>
+          <path d="M306 60 L306 102" stroke="#a67c1f" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#a)"/>
+          <text x="312" y="86" font-size="9.5" fill="#a67c1f">load</text>
+          <text x="0" y="164" font-size="10" fill="#6b6a64">Returns {question, results}, retrieval_method = "bm25"</text>
+        </svg>
+      </div>
+      <div class="box">
+        <h3>Core code</h3>
+<pre>import bm25s
+corpus = [tokenize_vi(c["context_header"] + "\n" + c["content"])
+          for c in chunks]
+bm = bm25s.BM25(method="lucene", k1=1.2, b=0.75)
+bm.index(corpus)
+ids, scores = bm.retrieve([tokenize_vi(question)], k=20)</pre>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>Real example · gold_030</h3>
+        <p style="font-size:12.5px;margin-bottom:8px">"Doanh nghiệp tạm ngừng kinh doanh phải gửi thông báo trước ít nhất mấy ngày làm việc, hồ sơ gồm những giấy tờ nào, và … bị xử phạt thế nào?"</p>
+        <div class="res">
+          <span class="hit">✓</span><span>Decree 168/2025 · Art. 60 Cl. 1</span><span>21.62</span>
+          <span class="miss">·</span><span>Decree 168/2025 · Art. 103 Cl. 1</span><span>18.59</span>
+          <span class="miss">·</span><span>Consolidated 67 · Art. 206 Cl. 1</span><span>18.15</span>
+          <span class="hit">✓</span><span>Decree 168/2025 · Art. 60 Cl. 2</span><span>18.01</span>
+          <span class="miss">·</span><span>Law 59/2020 · Art. 206 Cl. 1</span><span>17.98</span>
+        </div>
+        <p style="font-size:12px;color:#6b6a64;margin-top:6px">✓ = expected chunk. 2 of 4 in the top 5. The two penalty clauses (Decree 288/2026) are missed because they use different words. This is the gap Dense should fill.</p>
+      </div>
+      <div class="warn"><b>Bug found while testing:</b> underthesea splits the document number <code>59/2020/QH14</code> into <code>59_2020</code> and <code>_qh14</code>. The real tokenizer must protect legal numbers after segmentation.</div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>Metrics on 30 golden questions</h3>
+        <div class="stats">
+          <div class="stat"><b>0.70</b><span>Recall@20</span></div>
+          <div class="stat"><b>26/30</b><span>questions with ≥ 1 hit in top 20</span></div>
+          <div class="stat"><b>0.39</b><span>Recall@5</span></div>
+          <div class="stat"><b>4 ms</b><span>p95 per query (target ≤ 1 s)</span></div>
+        </div>
+        <div class="formula sm" style="margin-top:10px">
+          <math display="block"><mrow><mtext>Recall@</mtext><mi>k</mi><mo>=</mo><mfrac><mrow><mo>|</mo><mtext>gold chunks</mtext><mo>∩</mo><mtext>top-</mtext><mi>k</mi><mo>|</mo></mrow><mrow><mo>|</mo><mtext>gold chunks</mtext><mo>|</mo></mrow></mfrac></mrow></math>
+        </div>
+        <p style="font-size:12.5px">Share of the expected chunks that appear in the top <i>k</i>, summed over all questions. Indexing took 18 s, mostly word segmentation.</p>
+      </div>
+      <div class="note"><b>Baseline:</b> these numbers are the bar that Dense and Hybrid must beat on the same 30 questions.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Numbers: prototype run on 17/10/2026 with bm25s 0.3.13, underthesea 9.5.0</span><span>2 / 6</span></div>
+</section></div>
+
+<!-- ================= PAGE 3: BM25 IMPLEMENTATION ================= -->
+<div class="frame"><section class="slide">
+  <div class="eyebrow">Page 3 · How BM25 was implemented · PR #25</div>
+  <h1>From chunks.jsonl to Team 2: one file at a time</h1>
+  <div class="sub">Package <code>team1_data/retrieval/</code>, branch <code>feature/team1/bm25-retrieval</code>. Read the files in the numbered order below; pages 4 and 5 zoom into the two main files.</div>
+
+  <div class="grid" style="grid-template-columns:1.45fr 1fr">
+    <div class="col">
+      <div class="box" style="flex:1">
+        <h3>Data flow through the files</h3>
+        <svg viewBox="0 0 700 430" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+          <defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6b6a64"/></marker></defs>
+          <text x="0" y="14" font-size="11" font-weight="800" fill="#a67c1f">BUILD (OFFLINE)</text>
+          <!-- row 1 -->
+          <rect x="0" y="24" width="150" height="62" rx="7" fill="#fff" stroke="#1c1c1a"/>
+          <text x="75" y="46" font-size="12" font-weight="800" text-anchor="middle">chunks.jsonl</text>
+          <text x="75" y="62" font-size="10" text-anchor="middle" fill="#6b6a64">data/doanh-nghiep/processed</text>
+          <text x="75" y="76" font-size="10" text-anchor="middle" fill="#6b6a64">2,576 chunks</text>
+
+          <rect x="182" y="24" width="168" height="62" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="194" y="42" font-size="11" font-weight="800" fill="#a67c1f">③ bm25.py</text>
+          <text x="194" y="58" font-size="10.5">BM25Retriever.__init__</text>
+          <text x="194" y="73" font-size="10" fill="#6b6a64">filter legal_status, header+content</text>
+
+          <rect x="382" y="24" width="150" height="62" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="394" y="42" font-size="11" font-weight="800" fill="#a67c1f">② tokenizer.py</text>
+          <text x="394" y="58" font-size="10.5">tokenize_vi(text)</text>
+          <text x="394" y="73" font-size="10" fill="#6b6a64">NFC → lower → legal refs</text>
+
+          <rect x="564" y="24" width="136" height="62" rx="7" fill="#fff" stroke="#1c1c1a"/>
+          <text x="632" y="46" font-size="12" font-weight="800" text-anchor="middle">bm25s.index()</text>
+          <text x="632" y="62" font-size="10" text-anchor="middle" fill="#6b6a64">Lucene, k1 1.2, b 0.75</text>
+          <text x="632" y="76" font-size="10" text-anchor="middle" fill="#6b6a64">sparse score matrix</text>
+
+          <path d="M150 55 L180 55" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#m)"/>
+          <path d="M350 55 L380 55" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#m)"/>
+          <path d="M532 55 L562 55" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#m)"/>
+
+          <!-- save -->
+          <path d="M632 86 L632 120" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#m)"/>
+          <rect x="430" y="122" width="270" height="56" rx="7" fill="#fff" stroke="#1c1c1a" stroke-dasharray="5 4"/>
+          <text x="442" y="140" font-size="11" font-weight="800">save() → data/index/bm25/&lt;version&gt;/</text>
+          <text x="442" y="156" font-size="10" fill="#6b6a64">bm25s files + index_manifest.json</text>
+          <text x="442" y="170" font-size="10" fill="#6b6a64">(chunk_ids, sha256, k1, b, tokenizer)</text>
+          <text x="182" y="140" font-size="10.5" fill="#6b6a64">④ __main__.py runs all of this:</text>
+          <text x="182" y="156" font-size="10" font-family="Consolas, monospace">python -m team1_data.retrieval</text>
+          <text x="182" y="170" font-size="10" font-family="Consolas, monospace">  build --out data/index/bm25/…</text>
+
+          <line x1="0" y1="198" x2="700" y2="198" stroke="#e4e2da"/>
+          <text x="0" y="218" font-size="11" font-weight="800" fill="#a67c1f">QUERY (ONLINE, EVERY QUESTION)</text>
+
+          <!-- load -->
+          <rect x="430" y="228" width="270" height="48" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="442" y="246" font-size="11" font-weight="800">③ BM25Retriever.load()</text>
+          <text x="442" y="262" font-size="10" fill="#6b6a64">manifest ≠ chunks.jsonl → RetrievalUnavailableError</text>
+          <path d="M565 178 L565 226" stroke="#a67c1f" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#m)"/>
+
+          <!-- retrieve steps -->
+          <rect x="0" y="300" width="700" height="78" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+          <text x="12" y="318" font-size="11" font-weight="800" fill="#a67c1f">③ retrieve(question, top_k=20)</text>
+          <g font-size="10.5">
+            <text x="12" y="340">1 validate</text><text x="12" y="355" fill="#6b6a64" font-size="9.5">ValueError</text>
+            <text x="112" y="340">2 tokenize_vi</text><text x="112" y="355" fill="#6b6a64" font-size="9.5">same as build</text>
+            <text x="222" y="340">3 keep tokens</text><text x="222" y="355" fill="#6b6a64" font-size="9.5">in vocabulary</text>
+            <text x="332" y="340">4 bm25s.retrieve</text><text x="332" y="355" fill="#6b6a64" font-size="9.5">top k</text>
+            <text x="452" y="340">5 drop score 0</text><text x="452" y="355" fill="#6b6a64" font-size="9.5">none → results []</text>
+            <text x="572" y="340">6 copy 9 fields</text><text x="572" y="355" fill="#6b6a64" font-size="9.5">+ score, rank, method</text>
+          </g>
+          <path d="M565 276 L565 298" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#m)"/>
+
+          <!-- output -->
+          <path d="M350 378 L350 396" stroke="#6b6a64" stroke-width="1.6" marker-end="url(#m)"/>
+          <rect x="150" y="398" width="400" height="30" rx="7" fill="#fff" stroke="#1c1c1a"/>
+          <text x="350" y="418" font-size="11" text-anchor="middle"><tspan font-weight="800">{question, results}</tspan> → Team 2 rerank()  ·  schema v0.1</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>Reading order</h3>
+        <ol style="padding-left:18px;font-size:13px;line-height:1.5">
+          <li><code>__init__.py</code> exports <code>BM25Retriever</code>, <code>tokenize_vi</code>, <code>RetrievalUnavailableError</code>.</li>
+          <li><code>tokenizer.py</code> turns text into tokens. Used by both build and query, so they always match.</li>
+          <li><code>bm25.py</code> builds, saves, loads and queries the index.</li>
+          <li><code>__main__.py</code> is the command line: <code>build</code> and <code>query</code>.</li>
+          <li><code>tests/test_bm25_retrieval.py</code>: 18 tests, 5-chunk fake corpus, runs in &lt; 1 s.</li>
+        </ol>
+      </div>
+      <div class="box">
+        <h3>Key decisions</h3>
+        <ul style="font-size:12.5px">
+          <li><b>Legal refs cut out before underthesea.</b> Otherwise <code>59/2020/QH14</code> becomes two tokens. This fix lifted Recall@20.</li>
+          <li><b>Filter at build time</b>, not at query time: only <code>con_hieu_luc</code> and <code>het_hieu_luc_mot_phan</code> are indexed.</li>
+          <li><b>Manifest check on load</b>: an index built from other chunks refuses to run.</li>
+          <li><b>Output = contract</b>: tests validate it with <code>retrieval_output.schema.json</code>.</li>
+        </ul>
+      </div>
+      <div class="note"><b>Prototype → module</b> (30 golden questions): Recall@20 0.70 → <b>0.805</b>, Recall@5 0.39 → <b>0.447</b>, ≥ 1 hit 26 → <b>27</b>/30, p95 4 ms.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Code: team1_data/retrieval/ · Tests: tests/test_bm25_retrieval.py · PR #25</span><span>3 / 6</span></div>
+</section></div>
+
+<!-- ================= PAGE 4: TOKENIZER DETAIL ================= -->
+<div class="frame"><section class="slide">
+  <div class="eyebrow">Page 4 · Inside tokenizer.py · tokenize_vi()</div>
+  <h1>Five steps on one real sentence</h1>
+  <div class="sub">The same function runs when building the index and when reading a question. If the two sides tokenized differently, nothing would match.</div>
+
+  <div class="grid" style="grid-template-columns:1.35fr 1fr">
+    <div class="col">
+      <div class="box">
+        <h3>Input</h3>
+        <p style="font-family:Consolas,monospace;font-size:13px">Theo Điều 206 Luật 59/2020/QH14, doanh nghiệp hoà giải và tạm ngừng kinh doanh thế nào?</p>
+      </div>
+      <div class="box">
+        <h3>Step by step (real output)</h3>
+        <table class="t">
+          <thead><tr><th style="width:120px">Step</th><th>What it does</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><b>T1</b> NFC</td><td>"ệ" typed two ways becomes the same character</td><td>(no visible change)</td></tr>
+            <tr><td><b>T2</b> lower</td><td>Lowercase everything</td><td><code>theo điều 206 luật …</code></td></tr>
+            <tr><td><b>T3</b> tone</td><td>One tone-mark style for oa/oe/uy at syllable end</td><td><code>hoà</code> → <code>hòa</code></td></tr>
+            <tr><td><b>T4</b> legal refs</td><td>Regex finds references and <b>cuts them out</b> of the text</td><td><code>điều_206</code>, <code>59/2020/qh14</code></td></tr>
+            <tr><td><b>T5</b> segment</td><td>underthesea joins syllables into words, only on the text between references</td><td><code>doanh_nghiệp</code>, <code>hòa_giải</code>, <code>kinh_doanh</code></td></tr>
+            <tr><td><b>Clean</b></td><td>Drop punctuation-only tokens</td><td><code>,</code> and <code>?</code> removed</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="box">
+        <h3>Final tokens</h3>
+        <div class="tok good"><span>theo</span><span>điều_206</span><span>luật</span><span>59/2020/qh14</span><span>doanh_nghiệp</span><span>hòa_giải</span><span>và</span><span>tạm</span><span>ngừng</span><span>kinh_doanh</span><span>thế_nào</span></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>Why T4 cuts references out first</h3>
+        <div class="lbl">underthesea alone</div>
+        <div class="tok bad"><span>điều</span><span>206</span><span>59/2020</span><span>/</span><span>qh14</span></div>
+        <div class="lbl">tokenize_vi</div>
+        <div class="tok good"><span>điều_206</span><span>59/2020/qh14</span></div>
+        <p style="font-size:12.5px">Alone, underthesea breaks the article number and the law number apart, so a question about "Điều 206" also matches every chunk with the number 206 anywhere. An earlier version used a placeholder word instead of cutting, and underthesea glued it to the previous word (<code>luật_xlegalxax</code>). A unit test caught it.</p>
+      </div>
+      <div class="box">
+        <h3>The core of T4 + T5</h3>
+<pre>spans = []                       # (start, end, token)
+for pattern, render in LEGAL_PATTERNS:
+    for m in pattern.finditer(text):
+        if not overlapping(m, spans):
+            spans.append((m.start(), m.end(), render(m)))
+tokens, pos = [], 0
+for start, end, legal in sorted(spans):
+    tokens += segment(text[pos:start])   # underthesea
+    tokens.append(legal)                 # kept whole
+    pos = end
+tokens += segment(text[pos:])</pre>
+      </div>
+      <div class="note">Patterns: document numbers <code>\d+/\d{4}/…</code> and <code>điều | khoản | điểm | chương</code> + number. "điều kiện", "điều lệ" are <b>not</b> caught (tested).</div>
+    </div>
+  </div>
+  <div class="foot"><span>File: team1_data/retrieval/tokenizer.py (57 lines)</span><span>4 / 6</span></div>
+</section></div>
+
+<!-- ================= PAGE 5: RETRIEVE + TESTS ================= -->
+<div class="frame"><section class="slide">
+  <div class="eyebrow">Page 5 · Inside bm25.py · retrieve() and the tests</div>
+  <h1>What happens to one question, and how we know it works</h1>
+  <div class="sub">Real run on the saved index (2,576 chunks, vocabulary of 1,880 tokens).</div>
+
+  <div class="grid" style="grid-template-columns:1.3fr 1fr">
+    <div class="col">
+      <div class="box">
+        <h3>retrieve("Doanh nghiệp tạm ngừng kinh doanh xyzabc phải thông báo trước bao nhiêu ngày?", top_k=2)</h3>
+        <table class="t">
+          <tbody>
+            <tr><td style="width:150px"><b>1</b> validate</td><td>Non-empty, ≤ 4,000 chars, <code>top_k</code> integer 1–50, otherwise <code>ValueError</code>. Question is trimmed.</td></tr>
+            <tr><td><b>2</b> tokenize_vi</td><td>10 tokens, including the made-up word <code>xyzabc</code></td></tr>
+            <tr><td><b>3</b> keep known tokens</td><td>8 tokens stay; <code>xyzabc</code> and <code>bao_nhiêu</code> are not in the vocabulary. If none stay → <code>results: []</code></td></tr>
+            <tr><td><b>4</b> bm25s.retrieve</td><td>Top <code>min(top_k, chunks)</code> indices and scores</td></tr>
+            <tr><td><b>5</b> drop score 0</td><td>A chunk sharing no word is never returned</td></tr>
+            <tr><td><b>6</b> build rows</td><td>Copy 9 contract fields from the chunk, add <code>score</code>, <code>rank</code> 1..N, <code>retrieval_method</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="box">
+        <h3>First result (shortened)</h3>
+<pre>{"chunk_id": "nd-168-2025-nd-cp-v1__dieu-60__k1__0",
+ "document_id": "nd-168-2025-nd-cp-v1", "article_id": "dieu-60",
+ "content": "1. Trường hợp doanh nghiệp … tạm ngừng kinh doanh …
+             chậm nhất 03 ngày làm việc trước ngày tạm ngừng …",
+ "document_title": "Nghị định về đăng ký doanh nghiệp",
+ "article": "Điều 60", "clause": "Khoản 1", "point": null,
+ "source_url": "https://…", "score": 10.66, "rank": 1,
+ "retrieval_method": "bm25"}</pre>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>18 tests, mapped to the ticket</h3>
+        <table class="t">
+          <thead><tr><th>Ticket output</th><th>Tests</th></tr></thead>
+          <tbody>
+            <tr><td>Build index from corpus</td><td>skips non-valid <code>legal_status</code> · rejects empty / duplicate corpus · save → load gives same results · load rejects wrong chunk store · load of missing index raises</td></tr>
+            <tr><td>Query → top-K</td><td>tạm ngừng query ranks Art. 60 first · "Điều 69" query ranks Art. 69 first · <code>top_k</code> limits results · no match → <code>[]</code></td></tr>
+            <tr><td>chunk_id, content, score</td><td>fields present and score &gt; 0 · ranks 1..N with descending scores · output validates against the contract schema</td></tr>
+            <tr><td>Bad input</td><td>8 invalid cases → <code>ValueError</code> · question trimmed</td></tr>
+            <tr><td>Tokenizer</td><td>tone marks · legal refs kept whole · "điều kiện/điều lệ" not caught · punctuation dropped</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px;color:#6b6a64;margin-top:8px">Tests use a 5-chunk fake corpus (one of them repealed) and run in under 1 second. No network, no real index needed.</p>
+      </div>
+      <div class="note"><b>Run them:</b> <code>pip install -e ".[retrieval,test]"</code> then <code>python -m unittest tests.test_bm25_retrieval</code></div>
+    </div>
+  </div>
+  <div class="foot"><span>Files: team1_data/retrieval/bm25.py · tests/test_bm25_retrieval.py</span><span>5 / 6</span></div>
+</section></div>
+
+<!-- ================= PAGE 6: DENSE + HYBRID ================= -->
+<div class="frame"><section class="slide dense">
+  <div class="eyebrow">Page 6 · Semantic branch · VLRA-26, VLRA-27, VLRA-29</div>
+  <h1>Dense: find chunks with the same meaning, even with different words</h1>
+  <div class="sub">This page describes the design in <code>dense-retrieval-proposal.md</code>. Dense has <b>not been run yet</b>: no <code>sentence-transformers</code>, no model download, no Qdrant.</div>
+
+  <div class="grid g3">
+    <div class="col">
+      <div class="box">
+        <h3>Definition</h3>
+        <p class="big">An embedding model turns any text into a vector of 1,024 numbers. Texts with similar meaning get vectors that point in similar directions.</p>
+        <div class="formula">
+          <math display="block"><mrow><mi mathvariant="bold">v</mi><mo>=</mo><mtext>Embed</mtext><mo>(</mo><mtext>text</mtext><mo>)</mo><mo>∈</mo><msup><mi>ℝ</mi><mn>1024</mn></msup></mrow></math>
+        </div>
+        <div class="formula">
+          <math display="block"><mrow><mtext>sim</mtext><mo>(</mo><mi mathvariant="bold">q</mi><mo>,</mo><mi mathvariant="bold">d</mi><mo>)</mo><mo>=</mo><mi>cos</mi><mi>θ</mi><mo>=</mo><mfrac><mrow><mi mathvariant="bold">q</mi><mo>·</mo><mi mathvariant="bold">d</mi></mrow><mrow><mo>‖</mo><mi mathvariant="bold">q</mi><mo>‖</mo><mo>‖</mo><mi mathvariant="bold">d</mi><mo>‖</mo></mrow></mfrac></mrow></math>
+        </div>
+        <p>1 means same direction, 0 means unrelated. We L2-normalise every vector, so cosine becomes a plain dot product <math><mrow><mi mathvariant="bold">q</mi><mo>·</mo><mi mathvariant="bold">d</mi></mrow></math>. No word segmentation and no shared words are needed.</p>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>Intuition (illustration, not measured)</h3>
+        <svg viewBox="0 0 360 160" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+          <rect x="0" y="0" width="360" height="160" rx="8" fill="#fff" stroke="#e4e2da"/>
+          <circle cx="95" cy="62" r="44" fill="#e6eef4"/>
+          <circle cx="78" cy="50" r="6" fill="#2f5d7c"/><text x="88" y="46" font-size="11">"chia lãi"</text>
+          <circle cx="104" cy="78" r="6" fill="#2f5d7c"/><text x="40" y="98" font-size="11">Art. 69: profit distribution</text>
+          <circle cx="262" cy="58" r="40" fill="#e6eef4"/>
+          <circle cx="250" cy="50" r="6" fill="#2f5d7c"/><text x="218" y="38" font-size="11">"đóng cửa công ty"</text>
+          <circle cx="274" cy="72" r="6" fill="#2f5d7c"/><text x="214" y="92" font-size="11">dissolution of enterprise</text>
+          <circle cx="200" cy="136" r="6" fill="#6b6a64"/><text x="212" y="140" font-size="11" fill="#6b6a64">registration forms</text>
+          <text x="12" y="152" font-size="10" fill="#6b6a64">Close = similar meaning, though BM25 sees no common word</text>
+        </svg>
+      </div>
+      <div class="box">
+        <h3>How it is used</h3>
+        <ul>
+          <li><b>Offline:</b> embed <code>context_header + "\n" + content</code> of every chunk, store vector + metadata in Qdrant (collection <code>legal_chunks</code>, cosine distance).</li>
+          <li><b>Online:</b> embed the question with the <b>same model</b>, ask Qdrant for the top-k nearest vectors, return <code>retrieval_method = "dense"</code>.</li>
+          <li><b>Model:</b> <code>AITeamVN/Vietnamese_Embedding</code> (BGE-M3 base). Switch to <code>vnlegal-lal</code> or <code>vietlegal-e5</code> if Recall@20 is ≥ 3 points higher.</li>
+        </ul>
+      </div>
+      <div class="warn"><b>To prepare:</b> <code>sentence-transformers</code>, <code>torch</code> and the model ≈ 3–4 GB, plus Qdrant via Docker.</div>
+    </div>
+
+    <div class="col">
+      <div class="box">
+        <h3>BM25 vs Dense</h3>
+        <table class="t">
+          <thead><tr><th></th><th>BM25</th><th>Dense</th></tr></thead>
+          <tbody>
+            <tr><td><b>Matches</b></td><td>Exact words</td><td>Meaning</td></tr>
+            <tr><td><b>Strong at</b></td><td>"Art. 69 of Law 59/2020?"</td><td>"What is needed to share profit?"</td></tr>
+            <tr><td><b>Weak at</b></td><td>Synonyms, paraphrase</td><td>Exact numbers, article IDs</td></tr>
+            <tr><td><b>Needs</b></td><td>Vietnamese tokenizer</td><td>Model + Qdrant</td></tr>
+            <tr><td><b>Status</b></td><td>Prototype run</td><td>Not run</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="box">
+        <h3>Hybrid: Reciprocal Rank Fusion (VLRA-27)</h3>
+        <div class="formula">
+          <math display="block"><mrow><mtext>RRF</mtext><mo>(</mo><mi>d</mi><mo>)</mo><mo>=</mo><munder><mo>∑</mo><mrow><mi>r</mi><mo>∈</mo><mo>{</mo><mtext>BM25</mtext><mo>,</mo><mtext>Dense</mtext><mo>}</mo></mrow></munder><mfrac><mn>1</mn><mrow><mi>k</mi><mo>+</mo><msub><mtext>rank</mtext><mi>r</mi></msub><mo>(</mo><mi>d</mi><mo>)</mo></mrow></mfrac></mrow></math>
+        </div>
+        <p>Take the top 100 of each branch and add <b>ranks</b>, not raw scores (BM25 and cosine use different scales). <i>k</i> = 60. A chunk ranked high in both branches rises to the top. Returns <code>retrieval_method = "hybrid_rrf"</code>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Design source: docs/team1_data/dense-retrieval-proposal.md, hybrid-retrieval-proposal.md</span><span>6 / 6</span></div>
+</section></div>
+
+</div>
+<script>
+  function fit(){
+    var s=Math.min(1,(window.innerWidth-24)/1280);
+    document.querySelectorAll('.frame').forEach(function(f){
+      f.style.transform='scale('+s+')';
+      f.style.marginBottom=(720*s-720)+'px';
+      f.style.marginRight=(1280*s-1280)+'px';
+    });
+  }
+  window.addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
