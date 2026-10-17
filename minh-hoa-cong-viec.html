@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minh họa công việc</title>
+<style>
+  :root{
+    --bg:#ffffff; --page:#efeee9; --ink:#1c1c1a; --mute:#6b6a64; --line:#e4e2da; --card:#fcfbf8;
+    --gold:#a67c1f; --gold-soft:#f6efdc; --blue:#2f5d7c; --blue-soft:#e6eef4;
+    --red:#b3372b; --red-soft:#fbeae7; --ok:#3f6b4f; --ok-soft:#e8f1eb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--page)}
+  body{font-family:"Segoe UI",system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;padding:28px 16px}
+  .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+  .card{background:var(--bg);border-radius:10px;padding:26px 30px;box-shadow:0 2px 18px rgba(0,0,0,.06);position:relative;overflow:hidden}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:var(--gold)}
+  .card.hy::before{background:var(--blue)}
+  .card.sum::before{background:var(--ok)}
+  .eyebrow{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--gold)}
+  .hy .eyebrow{color:var(--blue)}
+  .sum .eyebrow{color:var(--ok)}
+  h1{font-size:28px;line-height:1.2;font-weight:800;margin-top:6px}
+  h2{font-size:22px;line-height:1.25;font-weight:800;margin-top:6px}
+  .sub{font-size:14.5px;color:var(--mute);margin-top:6px;line-height:1.5}
+  code{font-family:Consolas,"Cascadia Mono",monospace;font-size:12.5px;background:var(--gold-soft);padding:1px 5px;border-radius:3px;word-break:break-word}
+  .hy code{background:var(--blue-soft)}
+  .tablewrap{overflow-x:auto;margin-top:16px}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px;line-height:1.5}
+  th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:0 10px 8px;border-bottom:2px solid var(--ink)}
+  td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+  td:first-child{width:31%}
+  td:nth-child(2){width:24%}
+  td b.task{display:block;font-size:14.5px;margin-bottom:3px}
+  .why{color:var(--mute)}
+  .n{display:inline-block;min-width:22px;height:22px;border-radius:11px;background:var(--gold);color:#fff;font-size:12px;font-weight:800;text-align:center;line-height:22px;margin-right:6px}
+  .hy .n{background:var(--blue)}
+  td ul{padding-left:16px}
+  td li{margin:2px 0}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px;vertical-align:1px}
+  .tag.now{background:var(--ok-soft);color:var(--ok)}
+  .tag.after{background:var(--red-soft);color:var(--red)}
+  .warn{border-left:4px solid var(--red);background:var(--red-soft);padding:10px 12px;border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.5;margin-top:14px}
+  .note{border-left:4px solid var(--ok);background:var(--ok-soft);padding:10px 12px;border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.5;margin-top:14px}
+  svg{display:block;width:100%;height:auto;margin-top:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--card);font-size:13.5px;line-height:1.5}
+  .box h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+  .box ul{padding-left:18px}
+  .foot{font-size:12px;color:var(--mute);text-align:center}
+  @media (max-width:760px){.card{padding:20px 18px}.grid2{grid-template-columns:1fr}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= TỔNG QUAN ================= -->
+<section class="card sum">
+  <div class="eyebrow">Team 1 · Sprint 3 · 12–19/10/2026</div>
+  <h1>Tester không cần đợi Hybrid: hai bạn làm song song</h1>
+  <div class="sub">BM25 (PR #25) và Dense (PR #26) đã có code và test. Tester làm ngay phần đo và bộ test dùng chung. Bạn làm Hybrid dùng chính các thứ đó để biết Hybrid đã đạt hay chưa.</div>
+
+  <svg viewBox="0 0 1100 200" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif" role="img" aria-label="Hai luồng việc chạy song song">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6b6a64"/></marker></defs>
+    <text x="0" y="40" font-size="13" font-weight="800" fill="#a67c1f">TESTER</text>
+    <text x="0" y="140" font-size="13" font-weight="800" fill="#2f5d7c">HYBRID</text>
+
+    <rect x="90" y="18" width="190" height="44" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+    <text x="185" y="36" font-size="12" font-weight="700" text-anchor="middle">① Review, chạy test</text>
+    <text x="185" y="52" font-size="11" text-anchor="middle" fill="#6b6a64">PR #25, #26</text>
+    <rect x="300" y="18" width="190" height="44" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+    <text x="395" y="36" font-size="12" font-weight="700" text-anchor="middle">② Script đánh giá</text>
+    <text x="395" y="52" font-size="11" text-anchor="middle" fill="#6b6a64">Recall, MRR, p95</text>
+    <rect x="510" y="18" width="190" height="44" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+    <text x="605" y="36" font-size="12" font-weight="700" text-anchor="middle">③ Bộ test contract</text>
+    <text x="605" y="52" font-size="11" text-anchor="middle" fill="#6b6a64">dùng chung mọi retriever</text>
+    <rect x="720" y="18" width="170" height="44" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+    <text x="805" y="36" font-size="12" font-weight="700" text-anchor="middle">④ Mở rộng golden</text>
+    <text x="805" y="52" font-size="11" text-anchor="middle" fill="#6b6a64">theo nhóm câu hỏi</text>
+    <rect x="910" y="18" width="190" height="44" rx="7" fill="#f6efdc" stroke="#a67c1f"/>
+    <text x="1005" y="36" font-size="12" font-weight="700" text-anchor="middle">⑤ Benchmark thật</text>
+    <text x="1005" y="52" font-size="11" text-anchor="middle" fill="#6b6a64">Dense rồi Hybrid</text>
+
+    <rect x="90" y="118" width="190" height="44" rx="7" fill="#e6eef4" stroke="#2f5d7c"/>
+    <text x="185" y="136" font-size="12" font-weight="700" text-anchor="middle">① Nhánh từ #26</text>
+    <text x="185" y="152" font-size="11" text-anchor="middle" fill="#6b6a64">cần API Dense</text>
+    <rect x="300" y="118" width="190" height="44" rx="7" fill="#e6eef4" stroke="#2f5d7c"/>
+    <text x="395" y="136" font-size="12" font-weight="700" text-anchor="middle">② Lấy 100 candidate</text>
+    <text x="395" y="152" font-size="11" text-anchor="middle" fill="#6b6a64">hàm nội bộ mỗi nhánh</text>
+    <rect x="510" y="118" width="190" height="44" rx="7" fill="#e6eef4" stroke="#2f5d7c"/>
+    <text x="605" y="136" font-size="12" font-weight="700" text-anchor="middle">③④ rrf_fuse + Hybrid</text>
+    <text x="605" y="152" font-size="11" text-anchor="middle" fill="#6b6a64">song song, timeout</text>
+    <rect x="720" y="118" width="170" height="44" rx="7" fill="#e6eef4" stroke="#2f5d7c"/>
+    <text x="805" y="136" font-size="12" font-weight="700" text-anchor="middle">⑤ Factory + config</text>
+    <text x="805" y="152" font-size="11" text-anchor="middle" fill="#6b6a64">Team 2 gọi một hàm</text>
+    <rect x="910" y="118" width="190" height="44" rx="7" fill="#e6eef4" stroke="#2f5d7c"/>
+    <text x="1005" y="136" font-size="12" font-weight="700" text-anchor="middle">⑥⑦ Qdrant + test</text>
+    <text x="1005" y="152" font-size="11" text-anchor="middle" fill="#6b6a64">docker-compose</text>
+
+    <g stroke="#6b6a64" stroke-width="1.5" fill="none">
+      <path d="M280 40 L298 40" marker-end="url(#ar)"/><path d="M490 40 L508 40" marker-end="url(#ar)"/>
+      <path d="M700 40 L718 40" marker-end="url(#ar)"/><path d="M890 40 L908 40" marker-end="url(#ar)"/>
+      <path d="M280 140 L298 140" marker-end="url(#ar)"/><path d="M490 140 L508 140" marker-end="url(#ar)"/>
+      <path d="M700 140 L718 140" marker-end="url(#ar)"/><path d="M890 140 L908 140" marker-end="url(#ar)"/>
+    </g>
+    <g stroke="#3f6b4f" stroke-width="1.5" stroke-dasharray="5 4" fill="none">
+      <path d="M605 62 L605 116" marker-end="url(#ar)"/>
+      <path d="M395 62 C395 95 1005 85 1005 116" marker-end="url(#ar)"/>
+    </g>
+    <text x="612" y="92" font-size="11" fill="#3f6b4f">Hybrid phải qua bộ test này</text>
+    <text x="760" y="82" font-size="11" fill="#3f6b4f">script đo ngưỡng Recall@20 ≥ 0.90</text>
+    <text x="0" y="192" font-size="11.5" fill="#6b6a64">Mũi tên nét đứt: kết quả của tester được bạn Hybrid dùng. Hai luồng không chờ nhau, chỉ cần thống nhất trước kiểu gọi retrieve().</text>
+  </svg>
+
+  <div class="grid2">
+    <div class="box">
+      <h3>Đã có</h3>
+      <ul>
+        <li>BM25: Recall@20 0.805, Recall@5 0.447, p95 4 ms (30 câu golden)</li>
+        <li>Dense: module + 22 test, dùng embedder giả và Qdrant in-memory</li>
+        <li>Cả hai: <code>retrieve(question, top_k) → {question, results}</code>, đúng contract v0.1</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h3>Chưa có</h3>
+      <ul>
+        <li>Số đo Dense với model thật</li>
+        <li>CI trên GitHub: test chỉ chạy trên máy</li>
+        <li>Service Qdrant trong <code>docker-compose.yml</code></li>
+        <li>Thư mục <code>configs/</code> chưa có <code>retrieval.yaml</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTER ================= -->
+<section class="card">
+  <div class="eyebrow">Bạn tester · VLRA-28, VLRA-29</div>
+  <h2>Làm ngay, không đợi Hybrid</h2>
+  <div class="sub">Việc 1–4 làm được ngay với code hiện có. Việc 5 cần tải model, nên làm khi máy có đủ chỗ và Docker.</div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Làm gì (việc cần làm, lý do)</th><th>Chuẩn bị (thư viện, môi trường)</th><th>Làm như nào</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="n">1</span><b class="task" style="display:inline">Chạy và review test của PR #25, #26</b><span class="tag now">ngay</span>
+          <div class="why">Repo chưa có CI, nên kết quả test hiện chỉ có trên máy người viết code.</div></td>
+        <td><ul><li>Python ≥ 3.10, <code>.venv</code></li><li><code>pip install -e ".[retrieval,test]"</code></li><li><code>pip install "qdrant-client&gt;=1.12,&lt;2"</code> (không cần torch)</li></ul></td>
+        <td><ul><li>Checkout nhánh của PR, chạy <code>python -m unittest discover -s tests</code></li><li>Thử CLI: <code>python -m team1_data.retrieval build --out data/index/bm25/test</code> rồi <code>query</code></li><li>Ghi số test qua hoặc lỗi vào comment review của PR</li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">2</span><b class="task" style="display:inline">Viết script đánh giá dùng chung</b><span class="tag now">ngay</span>
+          <div class="why">Số 0.805 của BM25 đang đo bằng script tạm. Dense và Hybrid cần đo cùng một cách thì mới so được. Ngưỡng nhận Hybrid là Recall@20 ≥ 0.90.</div></td>
+        <td><ul><li><code>team2_rag/data/golden/golden_phase1_30cai.json</code></li><li><code>data/doanh-nghiep/processed/chunks.jsonl</code></li><li>numpy (đã có)</li></ul></td>
+        <td><ul><li>Tạo <code>scripts/eval_retrieval.py --method bm25|dense|hybrid_rrf</code></li><li>Nhận mọi object có <code>retrieve()</code>, không phụ thuộc class cụ thể</li><li>Tính Recall@5, Recall@20, MRR@10, p50/p95 thời gian</li><li>Xuất JSON gồm ngày chạy, <code>index_version</code>, tên model và revision</li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">3</span><b class="task" style="display:inline">Bộ test contract dùng chung cho mọi retriever</b><span class="tag now">ngay</span>
+          <div class="why">Hybrid phải qua đúng các kiểm tra mà BM25 và Dense đã qua. Viết trước thì bộ test thành "đề bài" cho bạn Hybrid.</div></td>
+        <td><ul><li><code>jsonschema</code> (extra <code>test</code>)</li><li><code>contracts/v0.1/retrieval_output.schema.json</code></li></ul></td>
+        <td><ul><li>Viết mixin <code>RetrieverContractTests</code>: đúng schema, <code>rank</code> 1..N, điểm giảm dần, <code>top_k</code> giới hạn, 8 input sai → <code>ValueError</code>, câu hỏi được trim</li><li>Cho test BM25 và Dense kế thừa mixin, xóa phần trùng</li><li>Hybrid sau này chỉ cần kế thừa thêm một lần</li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">4</span><b class="task" style="display:inline">Mở rộng bộ golden</b><span class="tag now">ngay</span>
+          <div class="why">30 câu là ít. Thiết kế yêu cầu đo theo nhóm câu hỏi (có số hiệu Điều hoặc văn bản, và diễn đạt đời thường) để biết nhánh nào yếu ở đâu.</div></td>
+        <td><ul><li>File golden <code>team2_rag/data/golden/</code> và validator <code>team2_rag/validate_golden.py</code> của Team 2</li><li>Thống nhất với Team 2 trước khi đổi định dạng</li></ul></td>
+        <td><ul><li>Thêm trường nhóm câu hỏi cho từng câu</li><li>Thêm câu về nghị định, thông tư, văn bản hợp nhất trong mảng doanh nghiệp, và vài câu ngoài corpus</li><li>Ghi <code>chunk_id</code> đúng cho từng câu, chạy validator</li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">5</span><b class="task" style="display:inline">Benchmark Dense với model thật</b><span class="tag after">khi có máy</span>
+          <div class="why">Dense chưa có số đo nào. Cần biết Dense hơn hay kém BM25 trước khi chỉnh trọng số Hybrid.</div></td>
+        <td><ul><li>torch CPU + <code>sentence-transformers</code> (~3–4 GB cả model)</li><li>Docker, image Qdrant có version cố định</li><li>Revision (commit hash) của model trên Hugging Face</li></ul></td>
+        <td><ul><li><code>docker run -p 6333:6333 qdrant/qdrant:&lt;version&gt;</code></li><li><code>python -m team1_data.retrieval dense-build --revision &lt;hash&gt; --out data/index/dense/&lt;version&gt;</code></li><li>Chạy script ở việc 2, so với BM25 (0.805 / 0.447)</li><li>Encode 2.576 chunk trên CPU mất khoảng 10–30 phút, nên chạy nền</li></ul></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ================= HYBRID ================= -->
+<section class="card hy">
+  <div class="eyebrow">Bạn làm Hybrid · VLRA-27</div>
+  <h2>Gộp BM25 và Dense bằng RRF</h2>
+  <div class="sub">Theo <code>docs/team1_data/hybrid-retrieval-proposal.md</code>: mỗi nhánh lấy 100 candidate, gộp theo hạng với <code>k = 60</code>, trọng số 1.0 / 1.0, trả <code>retrieval_method = "hybrid_rrf"</code>.</div>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Làm gì (việc cần làm, lý do)</th><th>Chuẩn bị (thư viện, môi trường)</th><th>Làm như nào</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="n">1</span><b class="task" style="display:inline">Tạo nhánh từ PR #26</b>
+          <div class="why">Hybrid cần API của Dense, mà Dense chưa vào <code>develop</code>.</div></td>
+        <td><ul><li>Git worktree riêng để không đụng nhánh khác</li><li>Môi trường như việc 1 của tester</li></ul></td>
+        <td><ul><li><code>git worktree add -b feature/team1/hybrid-retrieval ../hybrid origin/feature/team1/dense-retrieval</code></li><li>Khi #25, #26 merge xong thì rebase lên <code>develop</code></li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">2</span><b class="task" style="display:inline">Thêm hàm lấy candidate nội bộ cho BM25 và Dense</b>
+          <div class="why"><code>retrieve()</code> chặn <code>top_k</code> ≤ 50 theo contract, nhưng Hybrid cần 100 candidate mỗi nhánh. Không được nới giới hạn của contract.</div></td>
+        <td><ul><li>Không cần thư viện mới</li></ul></td>
+        <td><ul><li>Thêm <code>_search(question, limit)</code> trả danh sách chunk theo hạng ở cả <code>bm25.py</code> và <code>dense.py</code></li><li><code>retrieve()</code> gọi lại <code>_search()</code> để hai đường không lệch nhau</li><li>Lưu ý: BM25 có thể trả ít hơn <code>limit</code> vì bỏ chunk điểm 0</li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">3</span><b class="task" style="display:inline">Viết <code>rrf_fuse()</code></b>
+          <div class="why">Cộng thẳng điểm BM25 và cosine thì BM25 luôn áp đảo vì khác thang đo. RRF chỉ cộng theo hạng.</div></td>
+        <td><ul><li>Không cần thư viện mới</li></ul></td>
+        <td><ul><li>Hàm thuần: <code>score(d) = Σ wᵢ / (k + rankᵢ(d))</code></li><li>Khi bằng điểm: hạng tốt nhất ở bất kỳ nhánh nào đứng trước, rồi đến <code>chunk_id</code> theo thứ tự từ điển</li><li>Test bằng ví dụ trong proposal: BM25 <code>[A, C, B, E]</code>, Dense <code>[B, D, E, F, A]</code></li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">4</span><b class="task" style="display:inline"><code>HybridRetriever</code></b>
+          <div class="why">Thiết kế yêu cầu chạy hai nhánh song song và <b>không</b> âm thầm trả kết quả một nhánh khi nhánh kia lỗi.</div></td>
+        <td><ul><li><code>concurrent.futures</code> (có sẵn)</li><li>Thêm <code>RetrievalTimeoutError</code> vào <code>errors.py</code></li></ul></td>
+        <td><ul><li>Constructor nhận BM25, Dense, <code>rrf_k</code>, trọng số, số candidate</li><li>Khởi động: hai index khác <code>index_version</code> hoặc khác tập <code>chunk_id</code> → <code>RetrievalUnavailableError</code></li><li><code>ThreadPoolExecutor</code> chạy hai nhánh; quá 5 giây → <code>RetrievalTimeoutError</code></li><li>Một nhánh lỗi thì raise, không trả kết quả nửa vời</li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">5</span><b class="task" style="display:inline">Factory <code>build_retriever(config)</code> + <code>configs/retrieval.yaml</code></b>
+          <div class="why">Team 2 chỉ gọi một hàm. Đổi <code>bm25</code> → <code>hybrid_rrf</code> bằng cấu hình, không sửa code Team 2.</div></td>
+        <td><ul><li><code>pyyaml</code> (thêm vào extra <code>retrieval</code>)</li><li>Mẫu cấu hình trong <code>retrieval-design.md</code></li></ul></td>
+        <td><ul><li>Đọc <code>method</code>: <code>bm25</code> | <code>dense</code> | <code>hybrid_rrf</code></li><li>Nạp model và nối Qdrant <b>một lần</b> khi service khởi động</li><li>Báo Team 2 dùng hàm này trong <code>service.py</code></li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">6</span><b class="task" style="display:inline">Thêm Qdrant vào <code>docker-compose.yml</code></b>
+          <div class="why">Compose hiện chưa có service Qdrant. Thiếu nó thì Dense và Hybrid không chạy được khi demo.</div></td>
+        <td><ul><li>Docker</li><li>Thống nhất version image với Team 3</li></ul></td>
+        <td><ul><li>Service <code>qdrant</code>, image có version cố định (không dùng <code>latest</code>)</li><li><code>ports: ["6333:6333"]</code>, <code>volumes: ["./data/qdrant:/qdrant/storage"]</code></li></ul></td>
+      </tr>
+      <tr>
+        <td><span class="n">7</span><b class="task" style="display:inline">Test Hybrid</b>
+          <div class="why">Test không được tải model hay cần Qdrant server, giống test Dense.</div></td>
+        <td><ul><li>Embedder giả và <code>QdrantClient(":memory:")</code> từ <code>tests/test_dense_retrieval.py</code></li><li>Bộ test contract của tester (việc 3)</li></ul></td>
+        <td><ul><li>Kế thừa <code>RetrieverContractTests</code></li><li>Test riêng: thứ tự RRF, tie-break, một nhánh lỗi thì raise, timeout, lệch <code>index_version</code></li><li>Khi có model thật: tester chạy script ở việc 2 với <code>--method hybrid_rrf</code></li></ul></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="warn"><b>Cần thống nhất trước khi hai bạn bắt đầu:</b> tên và kiểu trả về của <code>_search()</code>, và nơi đặt bộ test contract. Đổi giữa chừng thì cả hai phải sửa lại.</div>
+  <div class="note"><b>Thứ tự merge:</b> #25 (BM25) → #26 (Dense) → PR Hybrid. Nhánh Hybrid xếp chồng lên #26, giống #26 đang xếp chồng lên #25.</div>
+</section>
+
+<div class="foot">Nguồn: docs/team1_data/retrieval-design.md, dense-retrieval-proposal.md, hybrid-retrieval-proposal.md · PR #25, #26 · cập nhật 17/10/2026</div>
+</div>
+</body>
+</html>

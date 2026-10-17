@@ -1,9 +1,14 @@
-# Dong bo slide tu repo chinh len GitHub Pages
-$src = "C:\Users\Thuy\vietnamese-legal-rag\docs\slides-bm25-dense.html"
+# Dong bo cac trang html tu repo chinh len GitHub Pages
+$docs = "C:\Users\Thuy\vietnamese-legal-rag\docs"
+# ten file nguon -> ten file tren Pages
+$pages = @{
+  "slides-bm25-dense.html" = "index.html"
+  "minh-hoa-cong-viec.html" = "minh-hoa-cong-viec.html"
+}
 Set-Location $PSScriptRoot
-Copy-Item $src "$PSScriptRoot\index.html" -Force
+foreach ($k in $pages.Keys) { Copy-Item (Join-Path $docs $k) (Join-Path $PSScriptRoot $pages[$k]) -Force }
 git add -A
 if (git status --porcelain) {
-  git commit -m ("update slide " + (Get-Date -Format "yyyy-MM-dd HH:mm"))
+  git commit -m ("update " + (Get-Date -Format "yyyy-MM-dd HH:mm"))
   git push
 } else { Write-Host "Khong co thay doi." }
