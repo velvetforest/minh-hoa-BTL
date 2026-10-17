@@ -136,7 +136,7 @@
       </div>
     </div>
   </div>
-  <div class="foot"><span>Design source: docs/team1_data/bm25-proposal.md</span><span>1 / 6</span></div>
+  <div class="foot"><span>Design source: docs/team1_data/bm25-proposal.md</span><span>1 / 8</span></div>
 </section></div>
 
 <!-- ================= PAGE 2: BM25 IN PRACTICE ================= -->
@@ -221,7 +221,7 @@ ids, scores = bm.retrieve([tokenize_vi(question)], k=20)</pre>
       <div class="note"><b>Baseline:</b> these numbers are the bar that Dense and Hybrid must beat on the same 30 questions.</div>
     </div>
   </div>
-  <div class="foot"><span>Numbers: prototype run on 17/10/2026 with bm25s 0.3.13, underthesea 9.5.0</span><span>2 / 6</span></div>
+  <div class="foot"><span>Numbers: prototype run on 17/10/2026 with bm25s 0.3.13, underthesea 9.5.0</span><span>2 / 8</span></div>
 </section></div>
 
 <!-- ================= PAGE 3: BM25 IMPLEMENTATION ================= -->
@@ -325,7 +325,7 @@ ids, scores = bm.retrieve([tokenize_vi(question)], k=20)</pre>
       <div class="note"><b>Prototype → module</b> (30 golden questions): Recall@20 0.70 → <b>0.805</b>, Recall@5 0.39 → <b>0.447</b>, ≥ 1 hit 26 → <b>27</b>/30, p95 4 ms.</div>
     </div>
   </div>
-  <div class="foot"><span>Code: team1_data/retrieval/ · Tests: tests/test_bm25_retrieval.py · PR #25</span><span>3 / 6</span></div>
+  <div class="foot"><span>Code: team1_data/retrieval/ · Tests: tests/test_bm25_retrieval.py · PR #25</span><span>3 / 8</span></div>
 </section></div>
 
 <!-- ================= PAGE 4: TOKENIZER DETAIL ================= -->
@@ -386,7 +386,7 @@ tokens += segment(text[pos:])</pre>
       <div class="note">Patterns: document numbers <code>\d+/\d{4}/…</code> and <code>điều | khoản | điểm | chương</code> + number. "điều kiện", "điều lệ" are <b>not</b> caught (tested).</div>
     </div>
   </div>
-  <div class="foot"><span>File: team1_data/retrieval/tokenizer.py (57 lines)</span><span>4 / 6</span></div>
+  <div class="foot"><span>File: team1_data/retrieval/tokenizer.py (57 lines)</span><span>4 / 8</span></div>
 </section></div>
 
 <!-- ================= PAGE 5: RETRIEVE + TESTS ================= -->
@@ -441,7 +441,7 @@ tokens += segment(text[pos:])</pre>
       <div class="note"><b>Run them:</b> <code>pip install -e ".[retrieval,test]"</code> then <code>python -m unittest tests.test_bm25_retrieval</code></div>
     </div>
   </div>
-  <div class="foot"><span>Files: team1_data/retrieval/bm25.py · tests/test_bm25_retrieval.py</span><span>5 / 6</span></div>
+  <div class="foot"><span>Files: team1_data/retrieval/bm25.py · tests/test_bm25_retrieval.py</span><span>5 / 8</span></div>
 </section></div>
 
 <!-- ================= PAGE 6: DENSE + HYBRID ================= -->
@@ -514,7 +514,7 @@ tokens += segment(text[pos:])</pre>
       </div>
     </div>
   </div>
-  <div class="foot"><span>Design source: docs/team1_data/dense-retrieval-proposal.md, hybrid-retrieval-proposal.md</span><span>6 / 6</span></div>
+  <div class="foot"><span>Design source: docs/team1_data/dense-retrieval-proposal.md, hybrid-retrieval-proposal.md</span><span>6 / 8</span></div>
 </section></div>
 
 </div>
